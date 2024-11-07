@@ -1,18 +1,24 @@
 services:
   web:
     build: .
-    container_name: fastapi_app
+    container_name: fastapi_app_metrics
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DATABASE_URL=mysql+pymysql://root:password@db:3306/metrics_db
 
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: mysql_db_metrics
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password
