@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime
 import numpy as np
+from models import Metrics as MetricsModel,Profile
+from schemas import Metric
 
 class MetricsController:
     def __init__(self, db: Session):
@@ -73,3 +75,90 @@ class MetricsController:
 
     def get_post_count(self, posts):
         return len(posts)
+
+    def store_metrics(self, profile_id: int, metrics_dict: dict):
+        # Create a new Metrics instance with all metric values from the dictionary
+        new_metrics = Metric(
+            profile_id=profile_id,
+            active_reach=metrics_dict.get('active_reach'),
+            emv=metrics_dict.get('emv'),
+            average_engagements=metrics_dict.get('average_engagements'),
+            average_video_views=metrics_dict.get('average_video_views'),
+            average_story_reach=metrics_dict.get('average_story_reach'),
+            average_story_engagements=metrics_dict.get('average_story_engagements'),
+            average_story_views=metrics_dict.get('average_story_views'),
+            average_saves=metrics_dict.get('average_saves'),
+            average_likes=metrics_dict.get('average_likes'),
+            average_comments=metrics_dict.get('average_comments'),
+            average_shares=metrics_dict.get('average_shares'),
+            calculation_date=datetime.now()  # Record the time when the metrics were calculated
+        )
+        self.db.add(new_metrics)  # Add the new metrics record to the session
+        self.db.commit()          # Commit the transaction to save the record to the database
+        return new_metrics        # Return the newly created metrics record
+
+    def classify_posts(self, posts):
+        # Classify posts as 'Paid' or 'Organic'
+        for post in posts:
+            if '@' in post['description'] or 'اعلان' in post['description']:
+                post['content_type'] = 'Paid'
+            else:
+                post['content_type'] = 'Organic'
+        return posts
+
+    def compute_metrics_by_category(self, posts):
+        # Classify posts
+        posts = self.classify_posts(posts)
+
+        # Divide posts into categories
+        paid_posts = [post for post in posts if post['content_type'] == 'Paid']
+        organic_posts = [post for post in posts if post['content_type'] == 'Organic']
+
+        # Calculate metrics for each category
+        metrics_paid = self.calculate_all_metrics(paid_posts)
+        metrics_organic = self.calculate_all_metrics(organic_posts)
+        return metrics_paid, metrics_organic
+
+    def compute_metrics_by_product_type(self, posts):
+        # Organize posts by product type
+        product_type_groups = {}
+        for post in posts:
+            product_type = post.get('product_type', 'Unknown')  # Default to 'Unknown' if not specified
+            if product_type not in product_type_groups:
+                product_type_groups[product_type] = []
+            product_type_groups[product_type].append(post)
+
+        # Calculate metrics for each product type
+        product_type_metrics = {}
+        for product_type, grouped_posts in product_type_groups.items():
+            # Calculate all metrics for the group of posts of a specific product type
+            product_type_metrics[product_type] = self.calculate_all_metrics(grouped_posts)
+
+        return product_type_metrics
+
+    def get_metrics_by_username(self, username: str):
+        # Query the Profile to get the profile ID based on the username
+        profile = self.db.query(Profile).filter(Profile.username == username).first()
+        if not profile:
+            return None  # Return None if no profile is found
+
+        # Use the profile ID to retrieve the associated metrics
+        metrics = self.db.query(MetricsModel).filter(MetricsModel.profile_id == profile.id).all()
+        return [Metric.from_orm(metric) for metric in metrics] if metrics else []
+
+    def calculate_all_metrics(self, posts):
+        total_followers = self.get_total_followers()  # Adjust this to ensure it fetches the right number of followers
+        return {
+            'active_reach': self.calculate_active_reach(posts),
+            'emv': self.calculate_emv(total_followers, posts),
+            'average_engagements': self.calculate_average_engagements(posts),
+            'average_video_views': self.calculate_average_video_views(posts),
+            'average_story_reach': self.calculate_average_story_reach(posts),
+            'average_story_engagements': self.calculate_average_story_engagements(posts),
+            'average_story_views': self.calculate_average_story_views(posts),
+            'average_saves': self.calculate_average_saves(posts),
+            'average_likes': self.calculate_average_likes(posts),
+            'average_comments': self.calculate_average_comments(posts),
+            'average_shares': self.calculate_average_shares(posts),
+            'content_type_distribution': self.determine_content_type(posts)  # This computes the distribution of content types
+        }
