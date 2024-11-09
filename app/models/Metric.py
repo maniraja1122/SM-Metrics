@@ -9,6 +9,11 @@ class Metrics(Base):
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profiles.id'))
     active_reach = Column(Float)
+    followers = Column(Float)
+    country = Column(String)
+    username = Column(String)
+    profileUrl= Column(String)
+    postCount = Column(Integer)
     emv = Column(Float)
     average_engagements = Column(Float)
     average_video_views = Column(Float)
@@ -19,7 +24,6 @@ class Metrics(Base):
     average_likes = Column(Float)
     average_comments = Column(Float)
     average_shares = Column(Float)
-    content_type = Column(String(255))
     calculation_date = Column(DateTime)
 
     # Relationship to profile

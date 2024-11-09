@@ -6,6 +6,11 @@ class Metrics(BaseModel):
     id: Optional[int]
     profile_id: int
     active_reach: Optional[float]
+    followers: Optional[float]
+    country: Optional[str]
+    username: Optional[str]
+    profileUrl: Optional[str]
+    postCount: Optional[int]
     emv: Optional[float]
     average_engagements: Optional[float]
     average_video_views: Optional[float]
@@ -16,7 +21,6 @@ class Metrics(BaseModel):
     average_likes: Optional[float]
     average_comments: Optional[float]
     average_shares: Optional[float]
-    content_type: Optional[str]
     calculation_date: Optional[datetime]
 
     class Config:

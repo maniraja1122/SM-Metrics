@@ -47,10 +47,20 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
     average_likes = metrics_controller.calculate_average_likes(recent_posts)
     average_comments = metrics_controller.calculate_average_comments(recent_posts)
     average_shares = metrics_controller.calculate_average_shares(recent_posts)
-    logger.debug(profile_data['sila_id'])
+    followers=metrics_controller.get_total_followers(profile_data)
+    country=metrics_controller.get_country(profile_data)
+    username=metrics_controller.get_username(profile_data)
+    profileURL=metrics_controller.get_profile_url(profile_data)
+    postCount=metrics_controller.get_post_count(recent_posts)
     # Store all metrics at once
     metrics_controller.store_metrics(profile_data['sila_id'], {
+        "id" : profile_data["user_id"],
         'active_reach': active_reach,
+        "followers":followers,
+        "country":country,
+        "username":username,
+        "profileUrl":profileURL,
+        "postCount":post_content,
         'emv': emv,
         'average_engagements': average_engagements,
         'average_video_views': average_video_views,

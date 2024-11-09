@@ -76,10 +76,19 @@ class MetricsController:
     def get_post_count(self, posts):
         return len(posts)
 
+    def get_username(self, profile):
+        return profile['username']
+
     def store_metrics(self, profile_id: int, metrics_dict: dict):
         # Create a new Metrics instance with all metric values from the dictionary
         new_metrics = Metrics(
+            id=metrics_dict.get("id"),
             profile_id=profile_id,
+            followers=metrics_dict.get("followers"),
+            country=metrics_dict.get("country"),
+            username=metrics_dict.get("username"),
+            profileUrl=metrics_dict.get("profileUrl"),
+            postCount=metrics_dict.get("postCount"),
             active_reach=metrics_dict.get('active_reach'),
             emv=metrics_dict.get('emv'),
             average_engagements=metrics_dict.get('average_engagements'),
