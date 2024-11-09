@@ -1,5 +1,6 @@
 import logging
-import sys
 
+
+# Setting Debug Logger for FastAPI
 logger = logging.getLogger('uvicorn.error')
 logger.setLevel(logging.DEBUG)

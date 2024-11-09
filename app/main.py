@@ -9,7 +9,7 @@ from schemas import Metrics
 from utils import parse_date
 import numpy as np
 
-
+# Create All Required MYSQL Tables.
 db.create_tables()
 app = FastAPI()
 
@@ -24,7 +24,7 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
     post_content= await posts_file.read()
     profile_df = pd.read_csv(StringIO(profile_content.decode('utf-8')))
     posts_df = pd.read_csv(StringIO(post_content.decode('utf-8')))
-    # Tackling NaN and inf cases
+    # Tackling NaN and inf cases as the csv file can have some empty fields. This replaces that with 0.
     profile_df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     posts_df.replace([np.inf, -np.inf, np.nan], 0, inplace=True)
     profile_data = profile_df.to_dict(orient="records")[0]

@@ -4,12 +4,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
-# Configure your database URL here
+
+# Read DATABASE URL from the environment variable.
 DATABASE_URL = os.getenv('DATABASE_URL')
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine)
 
+# Create all the MYSQL Tables for the corresponding data models.
 def create_tables():
     Base.metadata.create_all(engine)
 
