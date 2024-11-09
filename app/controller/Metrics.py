@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from datetime import datetime
 import numpy as np
-from models import Metrics as MetricsModel,Profile
+from models import Metrics as MetricsModel
 from schemas import Metrics
 
 class MetricsController:
@@ -81,8 +81,7 @@ class MetricsController:
 
     def store_metrics(self, profile_id: int, metrics_dict: dict):
         # Create a new Metrics instance with all metric values from the dictionary
-        new_metrics = Metrics(
-            id=metrics_dict.get("id"),
+        new_metrics = MetricsModel(
             profile_id=profile_id,
             followers=metrics_dict.get("followers"),
             country=metrics_dict.get("country"),
@@ -129,13 +128,7 @@ class MetricsController:
         return metrics_paid, metrics_organic
 
     def get_metrics_by_username(self, username: str):
-        # Query the Profile to get the profile ID based on the username
-        profile = self.db.query(Profile).filter(Profile.username == username).first()
-        if not profile:
-            return None  # Return None if no profile is found
-
-        # Use the profile ID to retrieve the associated metrics
-        metrics = self.db.query(MetricsModel).filter(MetricsModel.profile_id == profile.id).all()
+        metrics = self.db.query(MetricsModel).filter(MetricsModel.username == username).all()
         return [Metrics.from_orm(metric) for metric in metrics] if metrics else []
 
     def calculate_all_metrics(self, posts):

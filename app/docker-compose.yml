@@ -19,9 +19,9 @@ services:
       MYSQL_DATABASE: metrics_db
       MYSQL_ROOT_HOST: "%"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_metrics:/var/lib/mysql
     ports:
       - "3306:3306"
 
 volumes:
-  mysql_data:
+  mysql_data_metrics:
