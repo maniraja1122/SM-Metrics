@@ -6,6 +6,7 @@ from io import StringIO
 import pandas as pd
 from datetime import datetime, timedelta
 from schemas import Metrics
+from utils import parse_date
 
 app = FastAPI()
 
@@ -15,14 +16,16 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
         raise HTTPException(status_code=400, detail="Invalid file format. Please upload CSV files.")
 
     # Read CSV files
-    profile_df = pd.read_csv(StringIO(await profile_file.read().decode('utf-8')))
-    posts_df = pd.read_csv(StringIO(await posts_file.read().decode('utf-8')))
+    profile_content=await profile_file.read()
+    post_content= await posts_file.read()
+    profile_df = pd.read_csv(StringIO(profile_content.decode('utf-8')))
+    posts_df = pd.read_csv(StringIO(post_content.decode('utf-8')))
     profile_data = profile_df.to_dict(orient="records")[0]
     posts_data = posts_df.to_dict(orient="records")
 
     # Filter posts from the last 3 months
     three_months_ago = datetime.now() - timedelta(days=90)
-    recent_posts = [post for post in posts_data if datetime.strptime(post['pub_date'], '%Y-%m-%d %H:%M:%S') >= three_months_ago]
+    recent_posts = [post for post in posts_data if parse_date(post['pub_date']) >= three_months_ago]
 
     # Initialize controller with DB session
     metrics_controller = MetricsController(db)
