@@ -76,14 +76,14 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
     })
 
     # Calculate metrics by content category
-    metrics_paid, metrics_organic = metrics_controller.compute_metrics_by_category(posts_data)
+    metrics_paid, metrics_organic = metrics_controller.compute_metrics_by_category(profile_data,posts_data)
 
     return {
         "metrics_paid": metrics_paid,
         "metrics_organic": metrics_organic,
     }
 
-@app.get("/metrics/{username}", response_model=Metrics)
+@app.get("/metrics/{username}", response_model=list[Metrics])
 def read_metrics(username: str, db: Session = Depends(db.get_db)):
     metrics_controller = MetricsController(db)
     metrics = metrics_controller.get_metrics_by_username(username)

@@ -57,10 +57,6 @@ class MetricsController:
         shares = [post['share_count'] for post in posts if 'share_count' in post]
         return np.mean(shares) if shares else 0
 
-    def determine_content_type(self, posts):
-        # Determine if content is paid or organic based on post description
-        return ["Paid" if '@' in post['description'] or 'اعلان' in post['description'] else "Organic" for post in posts]
-
     def get_country(self, profile):
         return profile['country']
 
@@ -107,15 +103,15 @@ class MetricsController:
 
     def classify_posts(self, posts):
         # Classify posts as 'Paid' or 'Organic'
-        logger.log(posts)
         for post in posts:
-            if '@' in post['description'] or 'اعلان' in post['description']:
+            description = str(post.get('description', ''))  # Convert description to string, default to empty if missing
+            if '@' in description or 'اعلان' in description:
                 post['content_type'] = 'Paid'
             else:
                 post['content_type'] = 'Organic'
         return posts
 
-    def compute_metrics_by_category(self, posts):
+    def compute_metrics_by_category(self, profile ,posts):
         # Classify posts
         posts = self.classify_posts(posts)
 
@@ -124,16 +120,16 @@ class MetricsController:
         organic_posts = [post for post in posts if post['content_type'] == 'Organic']
 
         # Calculate metrics for each category
-        metrics_paid = self.calculate_all_metrics(paid_posts)
-        metrics_organic = self.calculate_all_metrics(organic_posts)
+        metrics_paid = self.calculate_all_metrics(profile,paid_posts)
+        metrics_organic = self.calculate_all_metrics(profile,organic_posts)
         return metrics_paid, metrics_organic
 
     def get_metrics_by_username(self, username: str):
         metrics = self.db.query(MetricsModel).filter(MetricsModel.username == username).all()
         return [Metrics.from_orm(metric) for metric in metrics] if metrics else []
 
-    def calculate_all_metrics(self, posts):
-        total_followers = self.get_total_followers()  # Adjust this to ensure it fetches the right number of followers
+    def calculate_all_metrics(self,profile,posts):
+        total_followers = self.get_total_followers(profile)
         return {
             'active_reach': self.calculate_active_reach(posts),
             'emv': self.calculate_emv(total_followers, posts),
@@ -145,6 +141,5 @@ class MetricsController:
             'average_saves': self.calculate_average_saves(posts),
             'average_likes': self.calculate_average_likes(posts),
             'average_comments': self.calculate_average_comments(posts),
-            'average_shares': self.calculate_average_shares(posts),
-            'content_type_distribution': self.determine_content_type(posts)  # This computes the distribution of content types
+            'average_shares': self.calculate_average_shares(posts)
         }
