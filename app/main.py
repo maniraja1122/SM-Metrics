@@ -7,6 +7,11 @@ import pandas as pd
 from datetime import datetime, timedelta
 from schemas import Metrics
 from utils import parse_date
+import logging
+import sys
+
+logger = logging.getLogger('uvicorn.error')
+logger.setLevel(logging.DEBUG)
 
 app = FastAPI()
 
@@ -42,9 +47,9 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
     average_likes = metrics_controller.calculate_average_likes(recent_posts)
     average_comments = metrics_controller.calculate_average_comments(recent_posts)
     average_shares = metrics_controller.calculate_average_shares(recent_posts)
-
+    logger.debug(profile_data['sila_id'])
     # Store all metrics at once
-    metrics_controller.store_metrics(profile_data['id'], {
+    metrics_controller.store_metrics(profile_data['sila_id'], {
         'active_reach': active_reach,
         'emv': emv,
         'average_engagements': average_engagements,

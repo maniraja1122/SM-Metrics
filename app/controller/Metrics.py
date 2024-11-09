@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 import numpy as np
 from models import Metrics as MetricsModel,Profile
-from schemas import Metric
+from schemas import Metrics
 
 class MetricsController:
     def __init__(self, db: Session):
@@ -78,7 +78,7 @@ class MetricsController:
 
     def store_metrics(self, profile_id: int, metrics_dict: dict):
         # Create a new Metrics instance with all metric values from the dictionary
-        new_metrics = Metric(
+        new_metrics = Metrics(
             profile_id=profile_id,
             active_reach=metrics_dict.get('active_reach'),
             emv=metrics_dict.get('emv'),
@@ -127,7 +127,7 @@ class MetricsController:
 
         # Use the profile ID to retrieve the associated metrics
         metrics = self.db.query(MetricsModel).filter(MetricsModel.profile_id == profile.id).all()
-        return [Metric.from_orm(metric) for metric in metrics] if metrics else []
+        return [Metrics.from_orm(metric) for metric in metrics] if metrics else []
 
     def calculate_all_metrics(self, posts):
         total_followers = self.get_total_followers()  # Adjust this to ensure it fetches the right number of followers
