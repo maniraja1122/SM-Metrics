@@ -20,7 +20,7 @@ Use this [link](https://dbdiagram.io/d/672cc68de9daa85acaaae3b3) to view online.
 
 ## Usage
 
-### Run Locally
+### Run Locally [Requires Database Setup]
 
 Follow the steps to setup this project.
 
