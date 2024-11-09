@@ -7,12 +7,9 @@ import pandas as pd
 from datetime import datetime, timedelta
 from schemas import Metrics
 from utils import parse_date
-import logging
-import sys
 import numpy as np
 
-logger = logging.getLogger('uvicorn.error')
-logger.setLevel(logging.DEBUG)
+
 db.create_tables()
 app = FastAPI()
 

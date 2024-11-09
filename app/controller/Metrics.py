@@ -3,7 +3,7 @@ from datetime import datetime
 import numpy as np
 from models import Metrics as MetricsModel
 from schemas import Metrics
-
+from utils import logger
 class MetricsController:
     def __init__(self, db: Session):
         self.db = db
@@ -107,6 +107,7 @@ class MetricsController:
 
     def classify_posts(self, posts):
         # Classify posts as 'Paid' or 'Organic'
+        logger.log(posts)
         for post in posts:
             if '@' in post['description'] or 'اعلان' in post['description']:
                 post['content_type'] = 'Paid'
