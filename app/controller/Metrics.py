@@ -119,23 +119,6 @@ class MetricsController:
         metrics_organic = self.calculate_all_metrics(organic_posts)
         return metrics_paid, metrics_organic
 
-    def compute_metrics_by_product_type(self, posts):
-        # Organize posts by product type
-        product_type_groups = {}
-        for post in posts:
-            product_type = post.get('product_type', 'Unknown')  # Default to 'Unknown' if not specified
-            if product_type not in product_type_groups:
-                product_type_groups[product_type] = []
-            product_type_groups[product_type].append(post)
-
-        # Calculate metrics for each product type
-        product_type_metrics = {}
-        for product_type, grouped_posts in product_type_groups.items():
-            # Calculate all metrics for the group of posts of a specific product type
-            product_type_metrics[product_type] = self.calculate_all_metrics(grouped_posts)
-
-        return product_type_metrics
-
     def get_metrics_by_username(self, username: str):
         # Query the Profile to get the profile ID based on the username
         profile = self.db.query(Profile).filter(Profile.username == username).first()

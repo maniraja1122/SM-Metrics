@@ -57,12 +57,10 @@ async def compute_metrics(profile_file: UploadFile = File(...), posts_file: Uplo
 
     # Calculate metrics by content category
     metrics_paid, metrics_organic = metrics_controller.compute_metrics_by_category(posts_data)
-    product_type_metrics = metrics_controller.compute_metrics_by_product_type(posts_data)
 
     return {
         "metrics_paid": metrics_paid,
         "metrics_organic": metrics_organic,
-        "product_type_metrics": product_type_metrics
     }
 
 @app.get("/metrics/{username}", response_model=Metrics)
