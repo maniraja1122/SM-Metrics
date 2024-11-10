@@ -4,6 +4,8 @@ import numpy as np
 from models import Metrics as MetricsModel
 from schemas import Metrics
 from utils import logger
+
+# Controller having functions for calculating, storing and fetching different metrics.
 class MetricsController:
     def __init__(self, db: Session):
         self.db = db
